@@ -7,6 +7,7 @@ package cl.aiep.ena.dao;
 
 import cl.aiep.ena.dao.utils.ConexionSql;
 import cl.aiep.ena.models.Departamento;
+import cl.aiep.ena.models.Encargado;
 import cl.aiep.ena.models.Estado;
 import cl.aiep.ena.models.Requerimiento;
 import cl.aiep.ena.models.Usuario;
@@ -67,8 +68,14 @@ public class RequerimientoDAO extends ConexionSql {
         ResultSet rs = ps.executeQuery();
         ArrayList<Requerimiento> lista = new ArrayList();
         while(rs.next()){
-            Departamento depto = new Departamento(rs.getInt("depto"));
-            lista.add(new Requerimiento(rs.getInt("id"), usuario, depto, asignatario, Estado.CERRADO, sentencia));
+            UsuarioDAO ud = new UsuarioDAO();
+            Usuario usuario = ud.obtenerUsuario(rs.getInt("id_usuario"));
+            EncargadoDAO ed = new EncargadoDAO();
+            Encargado asignatario = ed.obtenerEncargado(rs.getInt("id_asignatario"));
+            DepartamentoDAO dd = new DepartamentoDAO();
+            Departamento depto = dd.obtenerDepartamento(rs.getInt("depto"));
+            Estado estado = rs.getInt("estado") == 0 ? Estado.CERRADO : Estado.ABIERTO;
+            lista.add(new Requerimiento(rs.getInt("id"), usuario, depto, asignatario, estado, rs.getString("detalle")));
         }
         return lista;
         }catch(Exception e){
@@ -78,18 +85,23 @@ public class RequerimientoDAO extends ConexionSql {
         }
     }
     
-    public Usuario obtenerUsuario(int id) throws ClassNotFoundException, SQLException{
-        String sentencia = "select * from usuario where id = ?";
+    public Requerimiento obtenerRequerimiento(int id) throws ClassNotFoundException, SQLException{
+        String sentencia = "select * from requerimiento where id = ?";
         try{
         conectar();
         PreparedStatement ps = obtenerPS(sentencia);
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
-        Usuario u = null;
+        Requerimiento u = null;
         if(rs.next()){
-            Departamento depto = new Departamento(rs.getInt("depto"));
-            u = new Usuario(rs.getInt("id"), rs.getString("usuario"), rs.getString("password"),
-                    rs.getString("nombre"), rs.getString("apellido"), depto);
+            UsuarioDAO ud = new UsuarioDAO();
+            Usuario usuario = ud.obtenerUsuario(rs.getInt("id_usuario"));
+            EncargadoDAO ed = new EncargadoDAO();
+            Encargado asignatario = ed.obtenerEncargado(rs.getInt("id_asignatario"));
+            DepartamentoDAO dd = new DepartamentoDAO();
+            Departamento depto = dd.obtenerDepartamento(rs.getInt("depto"));
+            Estado estado = rs.getInt("estado") == 0 ? Estado.CERRADO : Estado.ABIERTO;
+            Requerimiento req = new Requerimiento(rs.getInt("id"), usuario, depto, asignatario, estado, rs.getString("detalle"));
         }
         return u;
         }catch(Exception e){
@@ -99,24 +111,4 @@ public class RequerimientoDAO extends ConexionSql {
         }
     }
     
-    public Usuario validarUsuario(String usr) throws ClassNotFoundException, SQLException{
-        String sentencia = "select * from usuarios where usuario = ?";
-        try{
-        conectar();
-        PreparedStatement ps = obtenerPS(sentencia);
-        ps.setString(1, usr);
-        ResultSet rs = ps.executeQuery();
-        Usuario u = null;
-        if(rs.next()){
-            Departamento depto = new Departamento(rs.getInt("depto"));
-            u = new Usuario(rs.getInt("id"), rs.getString("usuario"), rs.getString("password"),
-                   rs.getString("nombre"), rs.getString("apellido"), depto);
-        }
-        return u;
-        }catch(Exception e){
-            return null;
-        }finally{
-            desconectar();
-        }
-    }
 }

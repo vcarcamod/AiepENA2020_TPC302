@@ -16,16 +16,15 @@ import java.sql.SQLException;
  *
  * @author exvicad
  */
-public class DepartamentoDAO extends ConexionSql {
+public class GerenciaDAO extends ConexionSql {
     
-    public int registrarDepartamento(Departamento dpto) throws SQLException, Exception{
-        String sentencia = "insert into departamento values (?,?,?)";
+    public int registrarGerencia(Departamento g) throws SQLException, Exception{
+        String sentencia = "insert into gerencia values (?,?)";
         try {
             conectar();
             PreparedStatement ps= obtenerPS(sentencia);
             ps.setInt(1, 0);
-            ps.setString(1, dpto.getNombre());
-            ps.setInt(2, dpto.getGerencia().getId());
+            ps.setString(1, g.getNombre());
             int r = ps.executeUpdate();
             return r;
         } catch (Exception e) {
@@ -35,22 +34,20 @@ public class DepartamentoDAO extends ConexionSql {
         }
     }
     
-    public Departamento obtenerDepartamento(int id) throws SQLException{
-        String sentencia = "select * from departamento where id=?";
-        Departamento depto = null;
+    public Gerencia obtenerGerencia(int id) throws SQLException{
+        String sentencia = "select * from gerencia where id=?";
+        Gerencia g = null;
         try {
             conectar();
             PreparedStatement ps = obtenerPS(sentencia);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
-                GerenciaDAO gd = new GerenciaDAO();
-                Gerencia gerencia = gd.obtenerGerencia(rs.getInt("id_gerencia"));
-                depto = new Departamento(rs.getInt("id"), rs.getString("nombre"), gerencia);
+                g = new Gerencia(rs.getInt("id"), rs.getString("nombre"));
             }
-            return depto;
+            return g;
         } catch (Exception e) {
-            return depto;
+            return g;
         }finally{
             desconectar();
         }

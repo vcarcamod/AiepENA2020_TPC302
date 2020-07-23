@@ -12,6 +12,9 @@ package cl.aiep.ena.models;
 public class DeptoMtto extends Departamento {
     private AreaMtto areaMtto;
 
+    public DeptoMtto() {
+    }
+
     public DeptoMtto(AreaMtto areaMtto) {
         this.areaMtto = areaMtto;
     }

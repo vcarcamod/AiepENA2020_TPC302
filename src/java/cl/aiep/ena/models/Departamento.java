@@ -21,6 +21,12 @@ public class Departamento {
         this.id = id;
     }
 
+    public Departamento(int id, String nombre, Gerencia gerencia) {
+        this.id = id;
+        this.nombre = nombre;
+        this.gerencia = gerencia;
+    }
+
     public int getId() {
         return id;
     }
